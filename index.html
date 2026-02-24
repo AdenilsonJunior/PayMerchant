@@ -2,111 +2,173 @@
 <html lang="pt-BR">
 <head>
   <meta charset="UTF-8" />
-  <title>Pagar com Pix</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Pagamento via Pix</title>
 
   <style>
     body {
       font-family: system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
-      text-align: center;
-      padding: 2rem;
-      background: #f7f7f7;
-    }
-
-    h1 {
-      margin-bottom: 1.5rem;
+      background: #fafafa;
+      margin: 0;
+      padding: 2rem 1rem;
+      display: flex;
+      justify-content: center;
     }
 
     .container {
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-    }
-
-    .btn {
-      font-size: 1.1rem;
-      padding: 1rem 1.8rem;
-      border: none;
-      border-radius: 8px;
-      cursor: pointer;
-      color: white;
-      margin: 0.5rem 0;
       width: 100%;
-      max-width: 320px;
-      transition: background-color 0.3s ease, transform 0.1s ease;
+      max-width: 360px;
+      text-align: center;
     }
 
-    .btn:active {
-      transform: scale(0.97);
+    h1 {
+      font-size: 1.3rem;
+      margin-bottom: 0.5rem;
     }
 
-    .btn-copy {
-      background-color: #0d6efd;
+    p {
+      color: #666;
+      font-size: 0.95rem;
     }
 
-    .btn-copy.success {
-      background-color: #2e7d32;
+    /* BOTÃO PIX */
+    .pix-btn {
+      width: 100%;
+      padding: 14px;
+      margin-top: 1rem;
+      font-size: 1rem;
+      font-weight: 600;
+      border: none;
+      border-radius: 10px;
+      background: #00b894;
+      color: white;
+      cursor: pointer;
+      transition: background 0.2s ease;
     }
 
-    /* Botão Nubank com ícone */
-    .nubank-btn {
+    .pix-btn.copied {
+      background: #2ecc71;
+    }
+
+    /* GRID DE BANCOS */
+    .bank-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 14px;
+      margin-top: 1.5rem;
+    }
+
+    /* ÍCONE = BOTÃO */
+    .bank-icon {
+      height: 72px;
+      border-radius: 14px;
+      background: #f1f1f1;
       display: flex;
       align-items: center;
       justify-content: center;
-      background-color: #8A05BE;
-      border-radius: 12px;
-      width: 64px;
-      height: 64px;
-      margin-top: 0.75rem;
-      text-decoration: none;
+      cursor: pointer;
+      transition:
+        transform 0.12s ease,
+        box-shadow 0.12s ease,
+        background 0.12s ease;
     }
 
-    .nubank-btn img {
-      width: 34px;
-      height: 34px;
+    .bank-icon img {
+      max-height: 34px;
+      max-width: 80%;
+      object-fit: contain;
+      pointer-events: none;
     }
 
-    .nubank-btn:active {
-      transform: scale(0.95);
+    /* FEEDBACK VISUAL */
+    .bank-icon:active {
+      transform: scale(0.94);
+      background: #e6e6e6;
+      box-shadow: inset 0 0 0 2px #d0d0d0;
+    }
+
+    /* ANIMAÇÃO EXTRA (tap confirmado) */
+    .bank-icon.clicked {
+      animation: pulse 0.25s ease;
+    }
+
+    @keyframes pulse {
+      0%   { transform: scale(1); }
+      50%  { transform: scale(0.92); }
+      100% { transform: scale(1); }
+    }
+
+    footer {
+      margin-top: 1.5rem;
+      font-size: 0.8rem;
+      color: #999;
     }
   </style>
 </head>
+
 <body>
-
-  <h1>Pagar com Pix</h1>
-
   <div class="container">
-    <button
-      id="pixBtn"
-      class="btn btn-copy"
-      onclick="copiarPix()">
-      Copiar Pix
+    <h1>Pagar com Pix</h1>
+    <p>Copie a chave ou abra seu banco</p>
+
+    <!-- BOTÃO COPIAR PIX -->
+    <button id="pixBtn" class="pix-btn">
+      Copiar chave Pix
     </button>
 
-    <!-- Botão Nubank com ícone -->
-    <a href="nubank://" class="nubank-btn" aria-label="Abrir Nubank">
-      <img src="nubank.svg" alt="Nubank" />
-    </a>
+    <!-- GRID DE BANCOS -->
+    <div class="bank-grid">
+
+      <div class="bank-icon" data-link="bb://">
+        <img src="bb.svg" alt="Banco do Brasil" />
+      </div>
+
+      <div class="bank-icon" data-link="itau://">
+        <img src="itau.svg" alt="Itaú" />
+      </div>
+
+      <div class="bank-icon" data-link="santander://">
+        <img src="santander.svg" alt="Santander" />
+      </div>
+
+      <div class="bank-icon" data-link="bradesco://">
+        <img src="bradesco.svg" alt="Bradesco" />
+      </div>
+
+    </div>
+
+    <footer>
+      Caso o app não abra, use a opção “Copiar Pix”.
+    </footer>
   </div>
 
   <script>
-    const PIX_CODE =
-      "00020126360014BR.GOV.BCB.PIX0114550352540001375204000053039865802BR5907Mercado6010Sao Carlos62110507EXTERNO6304BC21";
+    const PIX_CHAVE = "55.035.254/0001-37";
 
-    function copiarPix() {
-      const btn = document.getElementById("pixBtn");
+    // Copiar Pix
+    const pixBtn = document.getElementById("pixBtn");
+    pixBtn.addEventListener("click", async () => {
+      await navigator.clipboard.writeText(PIX_CHAVE);
+      pixBtn.textContent = "Pix copiado ✓";
+      pixBtn.classList.add("copied");
 
-      navigator.clipboard.writeText(PIX_CODE).then(() => {
-        btn.classList.add("success");
-        btn.textContent = "Pix copiado";
+      setTimeout(() => {
+        pixBtn.textContent = "Copiar chave Pix";
+        pixBtn.classList.remove("copied");
+      }, 2000);
+    });
 
-        setTimeout(() => {
-          btn.classList.remove("success");
-          btn.textContent = "Copiar Pix";
-        }, 2000);
+    // Abrir bancos
+    document.querySelectorAll(".bank-icon").forEach(icon => {
+      icon.addEventListener("click", () => {
+        const link = icon.dataset.link;
+
+        icon.classList.add("clicked");
+        setTimeout(() => icon.classList.remove("clicked"), 250);
+
+        window.location.href = link;
       });
-    }
+    });
   </script>
-
 </body>
 </html>
