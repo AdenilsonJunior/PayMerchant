@@ -17,23 +17,39 @@
       margin-bottom: 1.5rem;
     }
 
-    button {
-      font-size: 1.2rem;
+    .btn {
+      font-size: 1.1rem;
       padding: 1rem 1.8rem;
       border: none;
       border-radius: 8px;
       cursor: pointer;
-      background-color: #0d6efd;
       color: white;
+      margin: 0.5rem 0;
+      width: 100%;
+      max-width: 320px;
       transition: background-color 0.3s ease, transform 0.1s ease;
     }
 
-    button:active {
+    .btn:active {
       transform: scale(0.97);
     }
 
-    button.success {
+    .btn-copy {
+      background-color: #0d6efd;
+    }
+
+    .btn-copy.success {
       background-color: #2e7d32;
+    }
+
+    .btn-nubank {
+      background-color: #8A05BE;
+    }
+
+    .container {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
     }
   </style>
 </head>
@@ -41,10 +57,24 @@
 
   <h1>Pagar com Pix</h1>
 
-  <button id="pixBtn" onclick="copiarPix()">Copiar Pix</button>
+  <div class="container">
+    <button
+      id="pixBtn"
+      class="btn btn-copy"
+      onclick="copiarPix()">
+      Copiar Pix
+    </button>
+
+    <button
+      class="btn btn-nubank"
+      onclick="abrirNubank()">
+      Abrir Nubank
+    </button>
+  </div>
 
   <script>
-    const PIX_CODE = "00020126360014BR.GOV.BCB.PIX0114550352540001375204000053039865802BR5907Mercado6010Sao Carlos62110507EXTERNO6304BC21";
+    const PIX_CODE =
+      "00020126360014BR.GOV.BCB.PIX0114550352540001375204000053039865802BR5907Mercado6010Sao Carlos62110507EXTERNO6304BC21";
 
     function copiarPix() {
       const btn = document.getElementById("pixBtn");
@@ -56,8 +86,18 @@
         setTimeout(() => {
           btn.classList.remove("success");
           btn.textContent = "Copiar Pix";
-        }, 2000); // tempo em ms (2 segundos)
+        }, 2000);
       });
+    }
+
+    function abrirNubank() {
+      // tenta abrir o app
+      window.location.href = "nubank://pix";
+
+      // fallback educado se não abrir (web / app não instalado)
+      setTimeout(() => {
+        alert("Se o app não abriu, volte e cole o Pix manualmente no seu banco.");
+      }, 1500);
     }
   </script>
 
