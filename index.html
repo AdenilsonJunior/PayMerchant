@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <title>Pagar com Pix</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <style>
+    body {
+      font-family: system-ui, sans-serif;
+      text-align: center;
+      padding: 2rem;
+    }
+    button {
+      font-size: 1.2rem;
+      padding: 1rem 1.5rem;
+    }
+  </style>
+</head>
+<body>
+
+<h1>Pagar com Pix</h1>
+<p>Toque no botão abaixo para copiar o Pix.</p>
+
+<button onclick="copiar()">Copiar Pix</button>
+
+<script>
+function copiar() {
+  const pix = "00020126360014BR.GOV.BCB.PIX0114550352540001375204000053039865802BR5907Mercado6010Sao Carlos62110507EXTERNO6304BC21";
+  navigator.clipboard.writeText(pix);
+  alert("Pix copiado! Abra seu app do banco e cole.");
+}
+</script>
+
+</body>
+</html>
