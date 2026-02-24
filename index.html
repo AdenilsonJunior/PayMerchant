@@ -1,254 +1,230 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Pagar com Pix</title>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
 
-  <style>
-    body {
-      font-family: system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
-      background: #fafafa;
-      margin: 0;
-      padding: 2rem 1rem;
-      display: flex;
-      justify-content: center;
-    }
+<title>Pagamento Mercadinho</title>
 
-    .container {
-      width: 100%;
-      max-width: 380px;
-      text-align: center;
-    }
+<style>
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto;
+    background: #f5f6f8;
+    padding: 20px;
+  }
 
-    h1 {
-      font-size: 1.4rem;
-      margin-bottom: 0.4rem;
-    }
+  h2 {
+    text-align: center;
+    margin-bottom: 8px;
+  }
 
-    p {
-      color: #666;
-      font-size: 0.95rem;
-    }
+  .subtitle {
+    text-align: center;
+    font-size: 15px;
+    color: #555;
+    margin-bottom: 20px;
+  }
 
-    /* BOTÃO PIX */
-    .pix-btn {
-      width: 100%;
-      padding: 16px;
-      margin-top: 1rem;
-      font-size: 1rem;
-      font-weight: 600;
-      border: none;
-      border-radius: 14px;
-      background: #00b894;
-      color: white;
-      cursor: pointer;
-      transition: background 0.2s ease, transform 0.1s ease;
-    }
+  /* GRID DE BANCOS */
+  .banks {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 18px;
+    max-width: 520px;
+    margin: 0 auto;
+  }
 
-    .pix-btn:active {
-      transform: scale(0.97);
-    }
+  .bank {
+    background: white;
+    border-radius: 18px;
+    padding: 18px 10px;
+    text-align: center;
+    cursor: pointer;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.08);
+    transition: transform .15s ease, box-shadow .15s ease;
+  }
 
-    .pix-btn.copied {
-      background: #2ecc71;
-    }
+  .bank:active {
+    transform: scale(0.95);
+    box-shadow: 0 2px 6px rgba(0,0,0,0.15);
+  }
 
-    /* GRID */
-    .bank-grid {
-      display: grid;
-      grid-template-columns: repeat(2, 1fr);
-      gap: 16px;
-      margin-top: 1.6rem;
-    }
+  .bank img {
+    width: 92px;
+    height: 92px;
+    object-fit: contain;
+  }
 
-    /* ÍCONE = BOTÃO */
-    .bank-icon {
-      height: 92px;
-      border-radius: 18px;
-      background: #f1f1f1;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      cursor: pointer;
-      transition: transform 0.12s ease, background 0.12s ease;
-      user-select: none;
-    }
+  .bank span {
+    display: block;
+    margin-top: 10px;
+    font-size: 14px;
+    font-weight: 500;
+  }
 
-    .bank-icon img {
-      max-height: 48px;
-      max-width: 80%;
-      object-fit: contain;
-      pointer-events: none;
-    }
+  /* FEEDBACK DE APP NÃO ENCONTRADO */
+  .feedback {
+    margin-top: 22px;
+    text-align: center;
+    color: #444;
+    display: none;
+    font-size: 14px;
+  }
 
-    .bank-icon:active {
-      transform: scale(0.94);
-      background: #e6e6e6;
-    }
+  .feedback.show {
+    display: block;
+  }
 
-    /* TOAST */
-    .toast {
-      position: fixed;
-      bottom: 20px;
-      left: 50%;
-      transform: translateX(-50%);
-      background: #333;
-      color: #fff;
-      padding: 12px 16px;
-      border-radius: 12px;
-      font-size: 0.85rem;
-      opacity: 0;
-      pointer-events: none;
-      transition: opacity 0.2s ease, transform 0.2s ease;
-      z-index: 1000;
-    }
+  /* TOAST PIX COPIADO */
+  .toast {
+    position: fixed;
+    top: -60px;
+    left: 50%;
+    transform: translateX(-50%);
+    background: #22c55e;
+    color: white;
+    padding: 12px 18px;
+    border-radius: 999px;
+    font-size: 14px;
+    font-weight: 500;
+    box-shadow: 0 8px 20px rgba(0,0,0,0.2);
+    transition: top .4s ease, opacity .4s ease;
+    opacity: 0;
+    z-index: 999;
+  }
 
-    .toast.show {
-      opacity: 1;
-      transform: translateX(-50%) translateY(-6px);
-    }
+  .toast.show {
+    top: 20px;
+    opacity: 1;
+  }
 
-    footer {
-      margin-top: 1.5rem;
-      font-size: 0.8rem;
-      color: #999;
-    }
-  </style>
+  footer {
+    margin-top: 32px;
+    text-align: center;
+    font-size: 14px;
+    color: #666;
+  }
+</style>
 </head>
 
 <body>
-  <div class="container">
-    <h1>Pagar com Pix</h1>
-    <p>Copie o Pix ou instale seu banco</p>
 
-    <!-- COPIAR PIX -->
-    <button id="pixBtn" class="pix-btn">
-      Copiar Pix
-    </button>
+<h2>Pagar com Pix</h2>
 
-    <!-- BANCOS -->
-    <div class="bank-grid">
+<div class="subtitle">
+  Copie o código clicando no botão abaixo e escolha o banco de sua preferência
+</div>
 
-      <div class="bank-icon" data-bank="nubank">
-        <img src="nubank.svg" alt="Nubank">
-      </div>
+<div class="banks">
 
-      <div class="bank-icon" data-bank="bb">
-        <img src="bb.svg" alt="Banco do Brasil">
-      </div>
-
-      <div class="bank-icon" data-bank="itau">
-        <img src="itau.svg" alt="Itaú">
-      </div>
-
-      <div class="bank-icon" data-bank="santander">
-        <img src="santander.svg" alt="Santander">
-      </div>
-
-      <div class="bank-icon" data-bank="bradesco">
-        <img src="bradesco.svg" alt="Bradesco">
-      </div>
-
-    </div>
-
-    <footer>
-      O pagamento Pix funciona em qualquer banco.
-    </footer>
+  <div class="bank" onclick="openBank('nubank')">
+    <img src="https://logodownload.org/wp-content/uploads/2019/08/nubank-logo.png">
+    <span>Nubank</span>
   </div>
 
-  <!-- TOAST -->
-  <div id="toast" class="toast"></div>
+  <div class="bank" onclick="openBank('itau')">
+    <img src="https://logodownload.org/wp-content/uploads/2014/04/itau-logo.png">
+    <span>Itaú</span>
+  </div>
 
-  <script>
-    /* =======================
-       CONFIGURAÇÃO
-    ======================= */
+  <div class="bank" onclick="openBank('bradesco')">
+    <img src="https://logodownload.org/wp-content/uploads/2014/04/bradesco-logo.png">
+    <span>Bradesco</span>
+  </div>
 
-    const PIX_CODE =
-      "00020126360014BR.GOV.BCB.PIX0114550352540001375204000053039865802BR5907Mercado6010Sao Carlos62110507EXTERNO6304BC21";
+  <div class="bank" onclick="openBank('santander')">
+    <img src="https://logodownload.org/wp-content/uploads/2014/07/santander-logo.png">
+    <span>Santander</span>
+  </div>
 
-    const BANK_STORES = {
-      nubank: {
-        android: "https://play.google.com/store/apps/details?id=com.nu.production",
-        ios: "https://apps.apple.com/br/app/nubank-conta-cart%C3%A3o-e-mais/id814456780",
-        name: "Nubank"
-      },
-      bb: {
-        android: "https://play.google.com/store/apps/details?id=br.com.bb.android",
-        ios: "https://apps.apple.com/br/app/bb-banco-do-brasil/id330984271",
-        name: "Banco do Brasil"
-      },
-      itau: {
-        android: "https://play.google.com/store/apps/details?id=com.itau",
-        ios: "https://apps.apple.com/br/app/itau/id474505665",
-        name: "Itaú"
-      },
-      santander: {
-        android: "https://play.google.com/store/apps/details?id=com.santander.app",
-        ios: "https://apps.apple.com/br/app/banco-santander-brasil/id613365711",
-        name: "Santander"
-      },
-      bradesco: {
-        android: "https://play.google.com/store/apps/details?id=com.bradesco",
-        ios: "https://apps.apple.com/br/app/bradesco/id336954985",
-        name: "Bradesco"
-      }
-    };
+  <div class="bank" onclick="openBank('bb')">
+    <img src="https://logodownload.org/wp-content/uploads/2014/04/banco-do-brasil-logo.png">
+    <span>Banco do Brasil</span>
+  </div>
 
-    /* =======================
-       UTIL
-    ======================= */
+  <div class="bank" onclick="openBank('caixa')">
+    <img src="https://logodownload.org/wp-content/uploads/2014/05/caixa-logo.png">
+    <span>Caixa</span>
+  </div>
 
-    const isAndroid = /Android/i.test(navigator.userAgent);
-    const isIOS = /iPhone|iPad|iPod/i.test(navigator.userAgent);
-    const toast = document.getElementById("toast");
+</div>
 
-    function showToast(text) {
-      toast.textContent = text;
-      toast.classList.add("show");
-      setTimeout(() => toast.classList.remove("show"), 2600);
+<div id="feedback" class="feedback">
+  App não encontrado. Redirecionando para a loja…
+</div>
+
+<div id="toast" class="toast">
+  Pix copiado com sucesso ✓
+</div>
+
+<footer>
+  Após realizar o pagamento, envie o comprovante pro WhatsApp do Juninho 😉
+</footer>
+
+<script>
+const PIX_CODE = "00020126360014BR.GOV.BCB.PIX0114550352540001375204000053039865802BR5907Mercado6010Sao Carlos62110507EXTERNO6304BC21";
+
+const banks = {
+  nubank: {
+    deep: "nubank://",
+    android: "https://play.google.com/store/apps/details?id=com.nu.production",
+    ios: "https://apps.apple.com/br/app/nubank/id814456780"
+  },
+  itau: {
+    deep: "itau://",
+    android: "https://play.google.com/store/apps/details?id=com.itau",
+    ios: "https://apps.apple.com/br/app/itau/id474505665"
+  },
+  bradesco: {
+    deep: "bradesco://",
+    android: "https://play.google.com/store/apps/details?id=br.com.bradesco",
+    ios: "https://apps.apple.com/br/app/bradesco/id336954985"
+  },
+  santander: {
+    deep: "santander://",
+    android: "https://play.google.com/store/apps/details?id=br.com.santander.app",
+    ios: "https://apps.apple.com/br/app/santander-brasil/id731933166"
+  },
+  bb: {
+    deep: "bb://",
+    android: "https://play.google.com/store/apps/details?id=br.com.bb.android",
+    ios: "https://apps.apple.com/br/app/banco-do-brasil/id330984271"
+  },
+  caixa: {
+    deep: "caixa://",
+    android: "https://play.google.com/store/apps/details?id=br.com.gabba.Caixa",
+    ios: "https://apps.apple.com/br/app/caixa/id494807708"
+  }
+};
+
+function isIOS() {
+  return /iPhone|iPad|iPod/i.test(navigator.userAgent);
+}
+
+function showToast() {
+  const toast = document.getElementById("toast");
+  toast.classList.add("show");
+  setTimeout(() => toast.classList.remove("show"), 2200);
+}
+
+function openBank(bankKey) {
+  const bank = banks[bankKey];
+  const feedback = document.getElementById("feedback");
+  feedback.classList.remove("show");
+
+  navigator.clipboard.writeText(PIX_CODE).then(showToast);
+
+  const start = Date.now();
+  window.location.href = bank.deep;
+
+  setTimeout(() => {
+    if (Date.now() - start < 1500) {
+      feedback.classList.add("show");
+      window.location.href = isIOS() ? bank.ios : bank.android;
     }
+  }, 1200);
+}
+</script>
 
-    /* =======================
-       COPIAR PIX
-    ======================= */
-
-    const pixBtn = document.getElementById("pixBtn");
-
-    pixBtn.addEventListener("click", async () => {
-      await navigator.clipboard.writeText(PIX_CODE);
-      pixBtn.textContent = "Pix copiado ✓";
-      pixBtn.classList.add("copied");
-
-      setTimeout(() => {
-        pixBtn.textContent = "Copiar Pix";
-        pixBtn.classList.remove("copied");
-      }, 2200);
-    });
-
-    /* =======================
-       BANCOS → LOJA
-    ======================= */
-
-    document.querySelectorAll(".bank-icon").forEach(icon => {
-      icon.addEventListener("click", async () => {
-        const bankKey = icon.dataset.bank;
-        const bank = BANK_STORES[bankKey];
-
-        // copia Pix automaticamente
-        await navigator.clipboard.writeText(PIX_CODE);
-
-        let storeLink = bank.android;
-        if (isIOS) storeLink = bank.ios;
-
-        showToast(`Pix copiado. Abrindo ${bank.name}…`);
-
-        setTimeout(() => {
-          window.open(storeLink, "_blank");
-        }, 600);
-      });
-    });
-  </script>
 </body>
 </html>
