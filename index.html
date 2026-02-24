@@ -17,6 +17,12 @@
       margin-bottom: 1.5rem;
     }
 
+    .container {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+
     .btn {
       font-size: 1.1rem;
       padding: 1rem 1.8rem;
@@ -44,12 +50,6 @@
 
     .btn-nubank {
       background-color: #8A05BE;
-    }
-
-    .container {
-      display: flex;
-      flex-direction: column;
-      align-items: center;
     }
   </style>
 </head>
@@ -91,13 +91,7 @@
     }
 
     function abrirNubank() {
-      // tenta abrir o app
-      window.location.href = "nubank://pix";
-
-      // fallback educado se não abrir (web / app não instalado)
-      setTimeout(() => {
-        alert("Se o app não abriu, volte e cole o Pix manualmente no seu banco.");
-      }, 1500);
+      window.location.href = "nubank://";
     }
   </script>
 
