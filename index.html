@@ -64,56 +64,27 @@
 
     /* ÍCONE = BOTÃO */
     .bank-icon {
-      height: 90px;
+      height: 92px;
       border-radius: 18px;
       background: #f1f1f1;
       display: flex;
       align-items: center;
       justify-content: center;
       cursor: pointer;
-      transition:
-        transform 0.12s ease,
-        background 0.12s ease,
-        box-shadow 0.12s ease;
+      transition: transform 0.12s ease, background 0.12s ease;
       user-select: none;
     }
 
     .bank-icon img {
-      max-height: 46px;
+      max-height: 48px;
       max-width: 80%;
       object-fit: contain;
       pointer-events: none;
     }
 
-    /* FEEDBACK CLICK */
     .bank-icon:active {
       transform: scale(0.94);
       background: #e6e6e6;
-    }
-
-    .bank-icon.clicked {
-      animation: pulse 0.25s ease;
-    }
-
-    @keyframes pulse {
-      0% { transform: scale(1); }
-      50% { transform: scale(0.92); }
-      100% { transform: scale(1); }
-    }
-
-    /* FEEDBACK ERRO */
-    .bank-icon.error {
-      background: #ffecec;
-      box-shadow: inset 0 0 0 2px #ffb3b3;
-      animation: shake 0.25s ease;
-    }
-
-    @keyframes shake {
-      0% { transform: translateX(0); }
-      25% { transform: translateX(-4px); }
-      50% { transform: translateX(4px); }
-      75% { transform: translateX(-4px); }
-      100% { transform: translateX(0); }
     }
 
     /* TOAST */
@@ -149,7 +120,7 @@
 <body>
   <div class="container">
     <h1>Pagar com Pix</h1>
-    <p>Copie o Pix ou toque no banco</p>
+    <p>Copie o Pix ou instale seu banco</p>
 
     <!-- COPIAR PIX -->
     <button id="pixBtn" class="pix-btn">
@@ -159,51 +130,92 @@
     <!-- BANCOS -->
     <div class="bank-grid">
 
-      <div class="bank-icon" data-link="nubank://">
+      <div class="bank-icon" data-bank="nubank">
         <img src="nubank.svg" alt="Nubank">
       </div>
 
-      <div class="bank-icon" data-link="bb://">
+      <div class="bank-icon" data-bank="bb">
         <img src="bb.svg" alt="Banco do Brasil">
       </div>
 
-      <div class="bank-icon" data-link="itau://">
+      <div class="bank-icon" data-bank="itau">
         <img src="itau.svg" alt="Itaú">
       </div>
 
-      <div class="bank-icon" data-link="santander://">
+      <div class="bank-icon" data-bank="santander">
         <img src="santander.svg" alt="Santander">
       </div>
 
-      <div class="bank-icon" data-link="bradesco://">
+      <div class="bank-icon" data-bank="bradesco">
         <img src="bradesco.svg" alt="Bradesco">
       </div>
 
     </div>
 
     <footer>
-      Se o app não abrir, use “Copiar Pix”.
+      O pagamento Pix funciona em qualquer banco.
     </footer>
   </div>
 
   <!-- TOAST -->
-  <div id="toast" class="toast">
-    App do banco não encontrado. Use “Copiar Pix”.
-  </div>
+  <div id="toast" class="toast"></div>
 
   <script>
+    /* =======================
+       CONFIGURAÇÃO
+    ======================= */
+
     const PIX_CODE =
       "00020126360014BR.GOV.BCB.PIX0114550352540001375204000053039865802BR5907Mercado6010Sao Carlos62110507EXTERNO6304BC21";
 
-    const pixBtn = document.getElementById("pixBtn");
+    const BANK_STORES = {
+      nubank: {
+        android: "https://play.google.com/store/apps/details?id=com.nu.production",
+        ios: "https://apps.apple.com/br/app/nubank-conta-cart%C3%A3o-e-mais/id814456780",
+        name: "Nubank"
+      },
+      bb: {
+        android: "https://play.google.com/store/apps/details?id=br.com.bb.android",
+        ios: "https://apps.apple.com/br/app/bb-banco-do-brasil/id330984271",
+        name: "Banco do Brasil"
+      },
+      itau: {
+        android: "https://play.google.com/store/apps/details?id=com.itau",
+        ios: "https://apps.apple.com/br/app/itau/id474505665",
+        name: "Itaú"
+      },
+      santander: {
+        android: "https://play.google.com/store/apps/details?id=com.santander.app",
+        ios: "https://apps.apple.com/br/app/banco-santander-brasil/id613365711",
+        name: "Santander"
+      },
+      bradesco: {
+        android: "https://play.google.com/store/apps/details?id=com.bradesco",
+        ios: "https://apps.apple.com/br/app/bradesco/id336954985",
+        name: "Bradesco"
+      }
+    };
+
+    /* =======================
+       UTIL
+    ======================= */
+
+    const isAndroid = /Android/i.test(navigator.userAgent);
+    const isIOS = /iPhone|iPad|iPod/i.test(navigator.userAgent);
     const toast = document.getElementById("toast");
 
-    function showToast() {
+    function showToast(text) {
+      toast.textContent = text;
       toast.classList.add("show");
-      setTimeout(() => toast.classList.remove("show"), 2200);
+      setTimeout(() => toast.classList.remove("show"), 2600);
     }
 
-    // Copiar Pix
+    /* =======================
+       COPIAR PIX
+    ======================= */
+
+    const pixBtn = document.getElementById("pixBtn");
+
     pixBtn.addEventListener("click", async () => {
       await navigator.clipboard.writeText(PIX_CODE);
       pixBtn.textContent = "Pix copiado ✓";
@@ -215,36 +227,26 @@
       }, 2200);
     });
 
-    // Abrir banco com heurística
+    /* =======================
+       BANCOS → LOJA
+    ======================= */
+
     document.querySelectorAll(".bank-icon").forEach(icon => {
-      icon.addEventListener("click", () => {
-        const link = icon.dataset.link;
-        let appOpened = false;
+      icon.addEventListener("click", async () => {
+        const bankKey = icon.dataset.bank;
+        const bank = BANK_STORES[bankKey];
 
-        icon.classList.add("clicked");
+        // copia Pix automaticamente
+        await navigator.clipboard.writeText(PIX_CODE);
 
-        const onBlur = () => {
-          appOpened = true;
-          window.removeEventListener("blur", onBlur);
-        };
+        let storeLink = bank.android;
+        if (isIOS) storeLink = bank.ios;
 
-        window.addEventListener("blur", onBlur);
+        showToast(`Pix copiado. Abrindo ${bank.name}…`);
 
-        // tentativa de abrir app
-        window.location.href = link;
-
-        // fallback
         setTimeout(() => {
-          window.removeEventListener("blur", onBlur);
-
-          if (!appOpened) {
-            icon.classList.add("error");
-            showToast();
-            setTimeout(() => icon.classList.remove("error"), 1200);
-          }
-        }, 1200);
-
-        setTimeout(() => icon.classList.remove("clicked"), 250);
+          window.open(storeLink, "_blank");
+        }, 600);
       });
     });
   </script>
