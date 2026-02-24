@@ -48,8 +48,26 @@
       background-color: #2e7d32;
     }
 
-    .btn-nubank {
+    /* Botão Nubank com ícone */
+    .nubank-btn {
+      display: flex;
+      align-items: center;
+      justify-content: center;
       background-color: #8A05BE;
+      border-radius: 12px;
+      width: 64px;
+      height: 64px;
+      margin-top: 0.75rem;
+      text-decoration: none;
+    }
+
+    .nubank-btn img {
+      width: 34px;
+      height: 34px;
+    }
+
+    .nubank-btn:active {
+      transform: scale(0.95);
     }
   </style>
 </head>
@@ -65,11 +83,10 @@
       Copiar Pix
     </button>
 
-    <button
-      class="btn btn-nubank"
-      onclick="abrirNubank()">
-      Abrir Nubank
-    </button>
+    <!-- Botão Nubank com ícone -->
+    <a href="nubank://" class="nubank-btn" aria-label="Abrir Nubank">
+      <img src="nubank.svg" alt="Nubank" />
+    </a>
   </div>
 
   <script>
@@ -88,10 +105,6 @@
           btn.textContent = "Copiar Pix";
         }, 2000);
       });
-    }
-
-    function abrirNubank() {
-      window.location.href = "nubank://";
     }
   </script>
 
