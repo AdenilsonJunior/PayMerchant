@@ -34,12 +34,12 @@
     /* BOTÃO PIX */
     .pix-btn {
       width: 100%;
-      padding: 15px;
+      padding: 16px;
       margin-top: 1rem;
       font-size: 1rem;
       font-weight: 600;
       border: none;
-      border-radius: 12px;
+      border-radius: 14px;
       background: #00b894;
       color: white;
       cursor: pointer;
@@ -54,7 +54,7 @@
       background: #2ecc71;
     }
 
-    /* GRID DE BANCOS */
+    /* GRID */
     .bank-grid {
       display: grid;
       grid-template-columns: repeat(2, 1fr);
@@ -64,8 +64,8 @@
 
     /* ÍCONE = BOTÃO */
     .bank-icon {
-      height: 84px;                 /* 🔼 maior */
-      border-radius: 16px;
+      height: 90px;
+      border-radius: 18px;
       background: #f1f1f1;
       display: flex;
       align-items: center;
@@ -73,23 +73,22 @@
       cursor: pointer;
       transition:
         transform 0.12s ease,
-        box-shadow 0.12s ease,
-        background 0.12s ease;
+        background 0.12s ease,
+        box-shadow 0.12s ease;
       user-select: none;
     }
 
     .bank-icon img {
-      max-height: 42px;             /* 🔼 maior */
+      max-height: 46px;
       max-width: 80%;
       object-fit: contain;
       pointer-events: none;
     }
 
-    /* FEEDBACK VISUAL */
+    /* FEEDBACK CLICK */
     .bank-icon:active {
       transform: scale(0.94);
       background: #e6e6e6;
-      box-shadow: inset 0 0 0 2px #d0d0d0;
     }
 
     .bank-icon.clicked {
@@ -97,9 +96,46 @@
     }
 
     @keyframes pulse {
-      0%   { transform: scale(1); }
-      50%  { transform: scale(0.92); }
+      0% { transform: scale(1); }
+      50% { transform: scale(0.92); }
       100% { transform: scale(1); }
+    }
+
+    /* FEEDBACK ERRO */
+    .bank-icon.error {
+      background: #ffecec;
+      box-shadow: inset 0 0 0 2px #ffb3b3;
+      animation: shake 0.25s ease;
+    }
+
+    @keyframes shake {
+      0% { transform: translateX(0); }
+      25% { transform: translateX(-4px); }
+      50% { transform: translateX(4px); }
+      75% { transform: translateX(-4px); }
+      100% { transform: translateX(0); }
+    }
+
+    /* TOAST */
+    .toast {
+      position: fixed;
+      bottom: 20px;
+      left: 50%;
+      transform: translateX(-50%);
+      background: #333;
+      color: #fff;
+      padding: 12px 16px;
+      border-radius: 12px;
+      font-size: 0.85rem;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.2s ease, transform 0.2s ease;
+      z-index: 1000;
+    }
+
+    .toast.show {
+      opacity: 1;
+      transform: translateX(-50%) translateY(-6px);
     }
 
     footer {
@@ -124,38 +160,50 @@
     <div class="bank-grid">
 
       <div class="bank-icon" data-link="nubank://">
-        <img src="nubank.svg" alt="Nubank" />
+        <img src="nubank.svg" alt="Nubank">
       </div>
 
       <div class="bank-icon" data-link="bb://">
-        <img src="bb.svg" alt="Banco do Brasil" />
+        <img src="bb.svg" alt="Banco do Brasil">
       </div>
 
       <div class="bank-icon" data-link="itau://">
-        <img src="itau.svg" alt="Itaú" />
+        <img src="itau.svg" alt="Itaú">
       </div>
 
       <div class="bank-icon" data-link="santander://">
-        <img src="santander.svg" alt="Santander" />
+        <img src="santander.svg" alt="Santander">
       </div>
 
       <div class="bank-icon" data-link="bradesco://">
-        <img src="bradesco.svg" alt="Bradesco" />
+        <img src="bradesco.svg" alt="Bradesco">
       </div>
 
     </div>
 
     <footer>
-      No iPhone, se o app não abrir, use “Copiar Pix”.
+      Se o app não abrir, use “Copiar Pix”.
     </footer>
+  </div>
+
+  <!-- TOAST -->
+  <div id="toast" class="toast">
+    App do banco não encontrado. Use “Copiar Pix”.
   </div>
 
   <script>
     const PIX_CODE =
       "00020126360014BR.GOV.BCB.PIX0114550352540001375204000053039865802BR5907Mercado6010Sao Carlos62110507EXTERNO6304BC21";
 
-    // Copiar Pix
     const pixBtn = document.getElementById("pixBtn");
+    const toast = document.getElementById("toast");
+
+    function showToast() {
+      toast.classList.add("show");
+      setTimeout(() => toast.classList.remove("show"), 2200);
+    }
+
+    // Copiar Pix
     pixBtn.addEventListener("click", async () => {
       await navigator.clipboard.writeText(PIX_CODE);
       pixBtn.textContent = "Pix copiado ✓";
@@ -167,16 +215,36 @@
       }, 2200);
     });
 
-    // Abrir banco (best-effort)
+    // Abrir banco com heurística
     document.querySelectorAll(".bank-icon").forEach(icon => {
       icon.addEventListener("click", () => {
         const link = icon.dataset.link;
+        let appOpened = false;
 
         icon.classList.add("clicked");
-        setTimeout(() => icon.classList.remove("clicked"), 250);
 
-        // tentativa direta
+        const onBlur = () => {
+          appOpened = true;
+          window.removeEventListener("blur", onBlur);
+        };
+
+        window.addEventListener("blur", onBlur);
+
+        // tentativa de abrir app
         window.location.href = link;
+
+        // fallback
+        setTimeout(() => {
+          window.removeEventListener("blur", onBlur);
+
+          if (!appOpened) {
+            icon.classList.add("error");
+            showToast();
+            setTimeout(() => icon.classList.remove("error"), 1200);
+          }
+        }, 1200);
+
+        setTimeout(() => icon.classList.remove("clicked"), 250);
       });
     });
   </script>
